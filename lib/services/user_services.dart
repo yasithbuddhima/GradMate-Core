@@ -127,4 +127,10 @@ class UserServices {
   // final hasAccess = normalizedRoles.any((role) => allowedRoles.contains(role));
   //
   //
+
+  // Method to save and update user name
+  Future<void> saveAndUpdateUserName(String username) async {
+    await prefs.setString('username', username.trim());
+    await db.doc(getUser().uid).update({'name': username.trim()});
+  }
 }
