@@ -130,7 +130,42 @@ class UserServices {
 
   // Method to save and update user name
   Future<void> saveAndUpdateUserName(String username) async {
-    await prefs.setString('username', username.trim());
-    await db.doc(getUser().uid).update({'name': username.trim()});
+    final trimmedUsername = username.trim();
+
+    try {
+      // Save username to local storage
+      await prefs.setString('username', trimmedUsername);
+
+      // Update username in Firestore
+      final user = getUser();
+      await db.doc(user.uid).update({'name': trimmedUsername});
+    } catch (e) {
+      debugPrint('Error saving/updating username: $e');
+      rethrow; // Or handle the error as needed
+    }
+  }
+
+  // Method to get saved username
+  Future<String> getUserName() async {
+    try {
+      // Try to get the username from local storage
+      final userName = prefs.getString('username');
+
+      if (userName != null && userName.isNotEmpty) {
+        return userName;
+      }
+
+      // If not found in local storage, try to get it from Firebase
+      final user = getUser();
+      if (user.displayName != null && user.displayName!.isNotEmpty) {
+        return user.displayName!;
+      }
+
+      throw Exception("Username not found");
+    } catch (e) {
+      // Log error and rethrow or return fallback
+      debugPrint("Error retrieving username: $e");
+      rethrow;
+    }
   }
 }
