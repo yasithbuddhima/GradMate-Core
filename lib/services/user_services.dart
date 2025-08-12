@@ -130,6 +130,7 @@ class UserServices {
 
   // Method to save and update user name
   Future<void> saveAndUpdateUserName(String username) async {
+    final prefs = await SharedPreferences.getInstance();
     final trimmedUsername = username.trim();
 
     try {
@@ -147,6 +148,7 @@ class UserServices {
 
   // Method to get saved username
   Future<String> getUserName() async {
+    final prefs = await SharedPreferences.getInstance();
     try {
       // Try to get the username from local storage
       final userName = prefs.getString('username');
