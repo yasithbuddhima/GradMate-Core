@@ -1,3 +1,5 @@
+import 'package:gradmate_core/services/grade_services.dart';
+
 class Course {
   final String id;
   final String code;
@@ -14,6 +16,8 @@ class Course {
   CourseDuration courseDuration;
   Credits credits;
 
+  Grade? grade;
+
   Course({
     required this.id,
     required this.code,
@@ -28,6 +32,7 @@ class Course {
     required this.courseDuration,
     required this.credits,
     required this.createdAt,
+    this.grade,
   });
 
   // Method to convert CourseModel to JSON
@@ -55,6 +60,7 @@ class Course {
         'practicalCredits': credits.practicalCredits,
         'totalCredits': credits.totalCredits,
       },
+      'grade': {'label': grade!.label, 'gradePoint': grade!.gradePoint},
     };
   }
 
@@ -82,6 +88,7 @@ class Course {
             .toDouble(),
         totalCredits: (json['credits']['totalCredits'] as num).toDouble(),
       ),
+      grade: Grade.fromLabel(json['grade'] as String?),
     );
   }
 }

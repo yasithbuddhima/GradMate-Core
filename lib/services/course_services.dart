@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gradmate_core/models/course_model.dart';
+import 'package:gradmate_core/services/grade_services.dart';
 
 class CourseServices {
   static final CourseServices _instance = CourseServices._internal();
@@ -12,6 +13,9 @@ class CourseServices {
 
   Future<List<Course>> getAllCoursesList() async {
     _cachedCourses = await getAllCourses(); // Your actual fetch logic
+    _cachedCourses = await GradeServices().updateAllGradesFromLocalStorage(
+      _cachedCourses!,
+    ); // Update All the Grades of the User From the Local Storage
     debugPrint("[CourseService.getAllCoursesList] Update all courses.");
 
     return _cachedCourses!;
