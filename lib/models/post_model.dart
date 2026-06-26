@@ -62,6 +62,15 @@ class NoticePost extends Post {
       'timestamp': timestamp,
     };
   }
+
+  factory NoticePost.fromJson(Map<String, dynamic> json) {
+    return NoticePost(
+      title: json['title'],
+      subtitle: json['subtitle'] ?? '',
+      content: json['content'],
+      timestamp: DateTime.parse(json['timestamp']),
+    );
+  }
 }
 
 class BirthdayPost extends Post {
@@ -79,5 +88,13 @@ class BirthdayPost extends Post {
   @override
   Map<String, dynamic> toJson() {
     return {'name': name, 'birthday': birthday, 'photoUrl': photoURL ?? ''};
+  }
+
+  factory BirthdayPost.fromJson(Map<String, dynamic> json) {
+    return BirthdayPost(
+      name: json['name'],
+      birthday: json['birthday'],
+      timestamp: DateTime.parse(json['timestamp']),
+    );
   }
 }
