@@ -30,11 +30,12 @@ class UserServices {
 
     try {
       // Save new user to firebase
-      await db.doc(userCredential.user!.uid).set({'signedIn': true});
+      final userData = user.toJson();
+      userData['signedIn'] = true;
+
       await db
           .doc(userCredential.user!.uid)
-          .update(user.toJson())
-          .onError((e, _) => throw Exception("Error writing document: $e"));
+          .set(userData, SetOptions(merge: true));
 
       // Save SignIn Done in shared Preferences
       final prefs = await SharedPreferences.getInstance();
@@ -99,10 +100,30 @@ class UserServices {
     await db.doc(getUser().uid).update({'birthday': birthday});
   }
 
-  DateTime getBirthday() {
-    final birthdayStr = prefs.getString('birthday')!;
+  DateTime? getBirthday() {
+    try {
+      final birthdayStr = prefs.getString('birthday');
+      if (birthdayStr == null) return null;
+      return DateTime.tryParse(birthdayStr)!;
+    } catch (e) {
+      throw Exception("Error Getting Birthday From Storage : ${e.toString()}");
+    }
+  }
 
-    return DateTime.tryParse(birthdayStr)!;
+  Future<DateTime?> getBirthdayOnline() async {
+    try {
+      final user = getUser();
+      final DocumentSnapshot snapshot = await db.doc(user.uid).get();
+      final Map<String, dynamic>? data =
+          snapshot.data() as Map<String, dynamic>?;
+      if (data != null && data["birthday"] != null) {
+        return DateTime.parse(data["birthday"].toString());
+      } else {
+        return null;
+      }
+    } catch (e) {
+      throw Exception("Birthday data not found. E:${e.toString()}");
+    }
   }
 
   // Method to get users roles
