@@ -30,11 +30,12 @@ class UserServices {
 
     try {
       // Save new user to firebase
-      await db.doc(userCredential.user!.uid).set({'signedIn': true});
+      final userData = user.toJson();
+      userData['signedIn'] = true;
+
       await db
           .doc(userCredential.user!.uid)
-          .update(user.toJson())
-          .onError((e, _) => throw Exception("Error writing document: $e"));
+          .set(userData, SetOptions(merge: true));
 
       // Save SignIn Done in shared Preferences
       final prefs = await SharedPreferences.getInstance();
@@ -103,6 +104,20 @@ class UserServices {
     final birthdayStr = prefs.getString('birthday')!;
 
     return DateTime.tryParse(birthdayStr)!;
+  }
+
+  Future<DateTime> getBirthdayOnline() async {
+    final user = getUser();
+
+    final DocumentSnapshot snapshot = await db.doc(user.uid).get();
+
+    final Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
+
+    if (data != null && data["birthday"] != null) {
+      return DateTime.parse(data["birthday"].toString());
+    } else {
+      throw Exception("Birthday data not found for user ${user.uid}");
+    }
   }
 
   // Method to get users roles
