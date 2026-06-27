@@ -126,6 +126,20 @@ class UserServices {
     }
   }
 
+  Future<DateTime> getBirthdayOnline() async {
+    final user = getUser();
+
+    final DocumentSnapshot snapshot = await db.doc(user.uid).get();
+
+    final Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
+
+    if (data != null && data["birthday"] != null) {
+      return DateTime.parse(data["birthday"].toString());
+    } else {
+      throw Exception("Birthday data not found for user ${user.uid}");
+    }
+  }
+
   // Method to get users roles
   Future<List<String>> getUserRoles() async {
     final user = getUser(); // Assuming this returns the current FirebaseUser
