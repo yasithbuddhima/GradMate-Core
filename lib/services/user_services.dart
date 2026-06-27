@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class UserServices {
   final db = FirebaseFirestore.instance.collection('users');
+  late Map<String, dynamic> firebaseUserData;
   late SharedPreferences prefs;
 
   Future<void> init() async {
@@ -19,13 +20,19 @@ class UserServices {
   }
 
   // Method to add new user
-  Future<bool> addNewUser(UserCredential userCredential) async {
+  Future<bool> addNewUser(
+    UserCredential userCredential,
+    DateTime birthday,
+    String courseId,
+  ) async {
     // Crete a new user
     UserModel user = UserModel(
       id: userCredential.user!.uid,
       name: userCredential.user!.displayName!,
       profileUrl: userCredential.user!.photoURL!,
       roles: ['student'],
+      birthday: birthday,
+      courseId: courseId,
     );
 
     try {
@@ -110,31 +117,26 @@ class UserServices {
     }
   }
 
-  Future<DateTime?> getBirthdayOnline() async {
+  Future<Map<String, dynamic>?> getFirebaseUser() async {
     try {
       final user = getUser();
       final DocumentSnapshot snapshot = await db.doc(user.uid).get();
       final Map<String, dynamic>? data =
           snapshot.data() as Map<String, dynamic>?;
-      if (data != null && data["birthday"] != null) {
-        return DateTime.parse(data["birthday"].toString());
-      } else {
-        return null;
+      if (data != null) {
+        firebaseUserData = data;
+        return data;
       }
+      return null;
     } catch (e) {
-      throw Exception("Birthday data not found. E:${e.toString()}");
+      throw Exception("Error getting firebase user data : ${e.toString()}");
     }
   }
 
   // Method to get users roles
-  Future<List<String>> getUserRoles() async {
-    final user = getUser(); // Assuming this returns the current FirebaseUser
-    final DocumentSnapshot doc = await db.doc(user.uid).get();
-
-    if (doc.exists) {
-      final data = doc.data() as Map<String, dynamic>;
-      debugPrint('Got User Roles: ${data['roles'].toString()}');
-      return List<String>.from(data['roles'] ?? ['student']);
+  List<String> getUserRoles() {
+    if (firebaseUserData["roles"] != null) {
+      return List<String>.from(firebaseUserData['roles'] ?? ['student']);
     } else {
       return ['student'];
     }
@@ -142,7 +144,7 @@ class UserServices {
 
   // How to use this
   //
-  // final roles = await UserServices().getUserRoles();
+  // final roles = UserServices().getUserRoles();
   // const allowedRoles = ["owner", "admin", "editor"];
   // final normalizedRoles = roles.map((r) => r.toLowerCase().trim()).toList();
   // final hasAccess = normalizedRoles.any((role) => allowedRoles.contains(role));

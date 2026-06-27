@@ -23,6 +23,7 @@ Future<List<UserModel>> fetchAllUsers() async {
           profileUrl: doc['profileUrl'],
           roles: doc['roles'],
           birthday: (doc['birthday'] as Timestamp).toDate(),
+          courseId: doc['courseId'],
         ),
       );
     }

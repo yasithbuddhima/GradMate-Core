@@ -3,7 +3,8 @@ class UserModel {
   final String name;
   final String profileUrl;
   final List<dynamic> roles;
-  final DateTime? birthday;
+  final DateTime birthday;
+  final String courseId;
 
   // Method to convert user to JSON
   Map<String, dynamic> toJson() {
@@ -12,6 +13,7 @@ class UserModel {
       "profileUrl": profileUrl,
       "roles": roles,
       'birthday': birthday,
+      'courseId': courseId,
     };
   }
 
@@ -23,6 +25,7 @@ class UserModel {
       profileUrl: json["profileUrl"],
       roles: json['roles'],
       birthday: DateTime.parse(json['birthday']),
+      courseId: json['courseId'],
     );
   }
 
@@ -31,6 +34,7 @@ class UserModel {
     required this.name,
     required this.profileUrl,
     required this.roles,
-    this.birthday,
+    required this.birthday,
+    required this.courseId,
   });
 }
